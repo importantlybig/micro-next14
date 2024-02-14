@@ -11,6 +11,8 @@ import {
 	Color,
 	LayerType,
 	Point,
+	Side,
+	XYWH,
 } from '@/types/canvas';
 import {
 	useHistory,
@@ -32,6 +34,7 @@ import { CursorsPresence } from './cursors-presence';
 import { nanoid } from 'nanoid';
 import { LiveObject } from '@liveblocks/client';
 import { LayerPreview } from './layer-preview';
+import { SelectionBox } from './selection-box';
 
 const MAX_LAYERS = 100;
 
@@ -251,6 +254,18 @@ const Canvas = ({ boardId }: CanvasProps) => {
 		}));
 	}, []);
 
+	const onResizeHandlePointerDown = useCallback(
+		(corner: Side, initialBounds: XYWH) => {
+			history.pause();
+			setCanvasState({
+				mode: CanvasMode.Resizing,
+				initialBounds,
+				corner,
+			});
+		},
+		[history]
+	);
+
 	const onPointerMove = useMutation(
 		({ setMyPresence }, e: React.PointerEvent) => {
 			e.preventDefault();
@@ -410,6 +425,7 @@ const Canvas = ({ boardId }: CanvasProps) => {
 							selectionColor={layerIdsToColorSelection[layerId]}
 						/>
 					))}
+					<SelectionBox onResizeHandlePointerDown={onResizeHandlePointerDown} />
 					<CursorsPresence />
 				</g>
 			</svg>
